@@ -1,0 +1,2 @@
+/Users/woodywillis/Developer/ready-or-not/mobile/android/app/.cxx/Debug/1457461r/x86/CMakeFiles/edit_cache.dir
+/Users/woodywillis/Developer/ready-or-not/mobile/android/app/.cxx/Debug/1457461r/x86/CMakeFiles/rebuild_cache.dir

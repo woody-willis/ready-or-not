@@ -1,0 +1,127 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
+
+class ClassicGame extends Equatable {
+  final String id;
+  final String hostUid;
+  final Timestamp? hideEndTime;
+  final Timestamp? gameEndTime;
+  final List<String>? seekerUids;
+  final List<String>? hiderUids;
+  final List<String>? caughtHiderUids;
+
+  const ClassicGame({
+    required this.id,
+    required this.hostUid,
+    required this.hideEndTime,
+    required this.gameEndTime,
+    this.seekerUids,
+    this.hiderUids,
+    this.caughtHiderUids,
+  });
+  
+  @override
+  List<Object?> get props => [id, hostUid, hideEndTime, gameEndTime, seekerUids, hiderUids, caughtHiderUids];
+
+  static const empty = ClassicGame(
+    id: '',
+    hostUid: '',
+    hideEndTime: null,
+    gameEndTime: null,
+    seekerUids: null,
+    hiderUids: null,
+    caughtHiderUids: null,
+  );
+
+  factory ClassicGame.fromJson(String id, Map<String, dynamic> json) {
+    return ClassicGame(
+      id: id,
+      hostUid: json['hostUid'] as String,
+      hideEndTime: json['hideEndTime'] != null ? (json['hideEndTime'] as Timestamp) : null,
+      gameEndTime: json['gameEndTime'] != null ? (json['gameEndTime'] as Timestamp) : null,
+      seekerUids: (json['seekers'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      hiderUids: (json['hiders'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      caughtHiderUids: (json['caughtHiders'] as List<dynamic>?)?.map((e) => e as String).toList(),
+    );
+  }
+}
+
+class ClassicPlayer extends Equatable {
+  final String id;
+  final String uid;
+  final String name;
+  final Timestamp? lastHeartbeat;
+  final bool ready;
+  final ClassicPlayerLocation? location;
+
+  const ClassicPlayer({
+    required this.id,
+    required this.uid,
+    required this.name,
+    required this.lastHeartbeat,
+    required this.ready,
+    this.location,
+  });
+
+  @override
+  List<Object?> get props => [id, uid, name, lastHeartbeat, ready, location];
+
+  static const empty = ClassicPlayer(
+    id: '',
+    uid: '',
+    name: '',
+    lastHeartbeat: null,
+    ready: false,
+    location: null,
+  );
+
+  factory ClassicPlayer.fromJson(String id, Map<String, dynamic> json) {
+    return ClassicPlayer(
+      id: id,
+      uid: json['uid'] as String,
+      name: json['name'] as String,
+      lastHeartbeat: json['lastHeartbeat'] as Timestamp?,
+      ready: json['ready'] as bool,
+      location: json['location'] != null
+          ? ClassicPlayerLocation.fromJson(json['location'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class ClassicPlayerLocation extends Equatable {
+  final num lng;
+  final num lat;
+  final num accuracy;
+  final num speed;
+  final num heading;
+
+  const ClassicPlayerLocation({
+    required this.lng,
+    required this.lat,
+    required this.accuracy,
+    required this.speed,
+    required this.heading,
+  });
+
+  @override
+  List<Object?> get props => [lng, lat, accuracy, speed, heading];
+
+  static const empty = ClassicPlayerLocation(
+    lng: 0,
+    lat: 0,
+    accuracy: 0,
+    speed: 0,
+    heading: 0,
+  );
+
+  factory ClassicPlayerLocation.fromJson(Map<String, dynamic> json) {
+    return ClassicPlayerLocation(
+      lng: (json['lng'] as num).toDouble(),
+      lat: (json['lat'] as num).toDouble(),
+      accuracy: (json['accuracy'] as num).toDouble(),
+      speed: (json['speed'] as num).toDouble(),
+      heading: (json['heading'] as num).toDouble(),
+    );
+  }
+}

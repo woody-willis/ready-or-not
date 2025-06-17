@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "844346764881",
+    "project_id": "ready-or-not-1717c",
+    "storage_bucket": "ready-or-not-1717c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844346764881:android:bda94d5fad5b0e162a1270",
+        "android_client_info": {
+          "package_name": "uk.co.woodywillis.ReadyOrNot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "844346764881-fahqnge7imaq5j40k22unrk40biju7vv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrp878XOouZPF9kEdN4VpN2Yfp8KkoGVs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "844346764881-fahqnge7imaq5j40k22unrk40biju7vv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
