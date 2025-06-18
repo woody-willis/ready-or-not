@@ -137,11 +137,16 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
 
   @override
   void dispose() {
+    try {
+      mapboxMapController.dispose();
+    } catch (e) {
+      // Do nothing
+    }
+
     _roleWidgetAnimationController.dispose();
     updateTimer.cancel();
     lobbySubscription.cancel();
     playersSubscription.cancel();
-    mapboxMapController.dispose();
     super.dispose();
   }
 
