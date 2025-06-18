@@ -9,6 +9,7 @@ class ClassicGame extends Equatable {
   final List<String>? seekerUids;
   final List<String>? hiderUids;
   final List<String>? caughtHiderUids;
+  final Map? settings;
 
   const ClassicGame({
     required this.id,
@@ -18,10 +19,11 @@ class ClassicGame extends Equatable {
     this.seekerUids,
     this.hiderUids,
     this.caughtHiderUids,
+    this.settings,
   });
   
   @override
-  List<Object?> get props => [id, hostUid, hideEndTime, gameEndTime, seekerUids, hiderUids, caughtHiderUids];
+  List<Object?> get props => [id, hostUid, hideEndTime, gameEndTime, seekerUids, hiderUids, caughtHiderUids, settings];
 
   static const empty = ClassicGame(
     id: '',
@@ -31,6 +33,7 @@ class ClassicGame extends Equatable {
     seekerUids: null,
     hiderUids: null,
     caughtHiderUids: null,
+    settings: null,
   );
 
   factory ClassicGame.fromJson(String id, Map<String, dynamic> json) {
@@ -42,6 +45,7 @@ class ClassicGame extends Equatable {
       seekerUids: (json['seekers'] as List<dynamic>?)?.map((e) => e as String).toList(),
       hiderUids: (json['hiders'] as List<dynamic>?)?.map((e) => e as String).toList(),
       caughtHiderUids: (json['caughtHiders'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      settings: json['settings'] as Map<String, dynamic>?,
     );
   }
 }

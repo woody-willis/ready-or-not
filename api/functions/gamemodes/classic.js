@@ -76,12 +76,13 @@ module.exports.startClassicGame = async (gameId) => {
     if (gameData.status !== "in_progress") {
       return;
     }
-    
+
     logger.log(`Game ${gameId} is releasing seekers.`);
 
     for (const player of seekers) {
       await playersRef.doc(player.id).update({
         status: "active",
+        caughtHiders: [],
       });
     }
   }, gameData.settings.hide_duration * 60 * 1000);

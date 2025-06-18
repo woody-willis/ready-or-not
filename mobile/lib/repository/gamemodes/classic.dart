@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:ready_or_not/models/classic_game.dart';
 import 'package:ready_or_not/repository/authentication/authentication.dart';
 
@@ -71,6 +72,10 @@ class ClassicGameRepository {
     final playersSnapshot = await playersRef.get();
     currentPlayers = playersSnapshot.docs.map((doc) => ClassicPlayer.fromJson(doc.id, doc.data())).toList();
 
+    currentPlayers = await _firestore.collection('games').doc(currentGame.id).collection('players').get().then((snapshot) {
+      return snapshot.docs.map((doc) => ClassicPlayer.fromJson(doc.id, doc.data())).toList();
+    });
+    _playersStreamSubscription?.cancel();
     _playersStreamSubscription = playersStream.listen((players) {
       currentPlayers = players;
     });
@@ -79,12 +84,64 @@ class ClassicGameRepository {
   Future<void> stopGame() async {
     await _currentLobbyStreamSubscription?.cancel();
     currentGame = ClassicGame.empty;
+
+    await _playersStreamSubscription?.cancel();
+    currentPlayers = [];
   }
 
   Future<void> registerTag() async {
     if (currentGame == ClassicGame.empty) return;
     if (!isSeeker()) return;
     
-    // TODO
+    Position location = await Geolocator.getCurrentPosition();
+
+    List<ClassicPlayer> nearestHiders = currentPlayers.where((player) {
+      return player.location != null && currentGame.hiderUids!.contains(player.uid) && !currentGame.caughtHiderUids!.contains(player.uid);
+    }).toList();
+    
+    nearestHiders.sort((a, b) {
+      final distanceA = Geolocator.distanceBetween(
+        location.latitude, location.longitude,
+        a.location!.lat.toDouble(), a.location!.lng.toDouble(),
+      );
+      final distanceB = Geolocator.distanceBetween(
+        location.latitude, location.longitude,
+        b.location!.lat.toDouble(), b.location!.lng.toDouble(),
+      );
+      return distanceA.compareTo(distanceB);
+    });
+
+    if (nearestHiders.isEmpty) return;
+    
+    ClassicPlayer nearestHider = nearestHiders.first;
+    double distanceMeters = Geolocator.distanceBetween(
+      location.latitude, location.longitude,
+      nearestHider.location!.lat.toDouble(), nearestHider.location!.lng.toDouble(),
+    );
+
+    final catchDistance = (currentGame.settings!['catch_distance'] as num?) ?? 10;
+    final accuracy = nearestHider.location!.accuracy;
+    if (distanceMeters > catchDistance + accuracy) {
+      return; // Too far to tag
+    }
+
+    final gameRef = _firestore.collection('games').doc(currentGame.id);
+
+    // Update player status
+    await gameRef.collection('players').doc(nearestHider.id).update({
+      'status': 'caught',
+    });
+
+    ClassicPlayer me = currentPlayers.firstWhere((player) => player.uid == _authenticationRepository.currentUser.id);
+
+    // Add caught hider to the seeker's list
+    await gameRef.collection('players').doc(me.id).update({
+      'caughtHiders': FieldValue.arrayUnion([nearestHider.uid]),
+    });
+
+    // Update game state
+    await gameRef.update({
+      'caughtHiders': FieldValue.arrayUnion([nearestHider.uid]),
+    });
   }
 }

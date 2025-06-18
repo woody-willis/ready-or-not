@@ -140,6 +140,8 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
     _roleWidgetAnimationController.dispose();
     updateTimer.cancel();
     lobbySubscription.cancel();
+    playersSubscription.cancel();
+    mapboxMapController.dispose();
     super.dispose();
   }
 
@@ -165,6 +167,12 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
                   lobbyBloc.state.lobby!.playArea!.lat,
                 ),
               )
+            );
+
+            mapboxMapController.scaleBar.updateSettings(
+              ScaleBarSettings(
+                enabled: false,
+              ),
             );
 
             circleAnnotationManager = await mapboxMap.annotations.createCircleAnnotationManager();

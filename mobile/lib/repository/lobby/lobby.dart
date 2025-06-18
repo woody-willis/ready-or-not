@@ -124,6 +124,9 @@ class LobbyRepository {
 
       await updateLocation(position.longitude, position.latitude, position.accuracy, position.speed, position.heading);
     });
+
+    Position currentPosition = await Geolocator.getCurrentPosition();
+    await updateLocation(currentPosition.longitude, currentPosition.latitude, currentPosition.accuracy, currentPosition.speed, currentPosition.heading);
   }
 
   Future<String> getUniqueGameCode() async {
@@ -180,6 +183,20 @@ class LobbyRepository {
     _playersStreamSubscription = playersStream.listen((players) {
       currentPlayers = players;
     });
+
+    locationStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position? position) async {
+      if (position == null) return;
+      if (position.isMocked) return;
+      if (currentLobby == Lobby.empty) {
+        locationStream?.cancel();
+        return;
+      }
+
+      await updateLocation(position.longitude, position.latitude, position.accuracy, position.speed, position.heading);
+    });
+
+    Position currentPosition = await Geolocator.getCurrentPosition();
+    await updateLocation(currentPosition.longitude, currentPosition.latitude, currentPosition.accuracy, currentPosition.speed, currentPosition.heading);
     
     return true;
   }
