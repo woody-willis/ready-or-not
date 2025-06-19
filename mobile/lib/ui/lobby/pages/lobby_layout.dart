@@ -253,26 +253,35 @@ class _LobbyLayoutState extends State<LobbyLayout> {
                         ),
                       ],
                     ),
-                    child: Text.rich(
-                      textAlign: TextAlign.center,
-                      TextSpan(
-                        text: 'Lobby Code: ',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Symbols.qr_code_rounded,
                           color: Theme.of(context).colorScheme.onSecondary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
                         ),
-                        children: [
+                        const SizedBox(width: 8),
+                        Text.rich(
+                          textAlign: TextAlign.center,
                           TextSpan(
-                            text: lobbyBloc.state.lobby!.gameCode,
+                            text: 'Lobby Code: ',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: Theme.of(context).colorScheme.onSecondary,
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w400,
                             ),
+                            children: [
+                              TextSpan(
+                                text: lobbyBloc.state.lobby!.gameCode,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSecondary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ): Padding(
