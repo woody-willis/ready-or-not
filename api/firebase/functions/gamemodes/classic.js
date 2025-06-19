@@ -102,7 +102,7 @@ module.exports.gameStateChanged = async (gameId) => {
 
     await gameRef.update({
       status: "finished",
-      winner: "seekers",
+      winner: "seeker",
     });
 
     const playersRef = gameRef.collection("players");

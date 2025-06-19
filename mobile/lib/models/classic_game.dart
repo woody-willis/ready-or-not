@@ -4,49 +4,81 @@ import 'package:equatable/equatable.dart';
 class ClassicGame extends Equatable {
   final String id;
   final String hostUid;
+  final ClassicGameStatus status;
   final Timestamp? hideEndTime;
   final Timestamp? gameEndTime;
   final List<String>? seekerUids;
   final List<String>? hiderUids;
   final List<String>? caughtHiderUids;
   final Map? settings;
+  final ClassicPlayerRole? winners;
 
   const ClassicGame({
     required this.id,
     required this.hostUid,
+    required this.status,
     required this.hideEndTime,
     required this.gameEndTime,
     this.seekerUids,
     this.hiderUids,
     this.caughtHiderUids,
     this.settings,
+    this.winners,
   });
   
   @override
-  List<Object?> get props => [id, hostUid, hideEndTime, gameEndTime, seekerUids, hiderUids, caughtHiderUids, settings];
+  List<Object?> get props => [id, hostUid, status, hideEndTime, gameEndTime, seekerUids, hiderUids, caughtHiderUids, settings, winners];
 
   static const empty = ClassicGame(
     id: '',
     hostUid: '',
+    status: ClassicGameStatus.waiting,
     hideEndTime: null,
     gameEndTime: null,
     seekerUids: null,
     hiderUids: null,
     caughtHiderUids: null,
     settings: null,
+    winners: null,
   );
 
   factory ClassicGame.fromJson(String id, Map<String, dynamic> json) {
     return ClassicGame(
       id: id,
       hostUid: json['hostUid'] as String,
+      status: ClassicGameStatus.fromString(json['status'] as String),
       hideEndTime: json['hideEndTime'] != null ? (json['hideEndTime'] as Timestamp) : null,
       gameEndTime: json['gameEndTime'] != null ? (json['gameEndTime'] as Timestamp) : null,
       seekerUids: (json['seekers'] as List<dynamic>?)?.map((e) => e as String).toList(),
       hiderUids: (json['hiders'] as List<dynamic>?)?.map((e) => e as String).toList(),
       caughtHiderUids: (json['caughtHiders'] as List<dynamic>?)?.map((e) => e as String).toList(),
       settings: json['settings'] as Map<String, dynamic>?,
+      winners: json['winner'] != null
+          ? ClassicPlayerRole.fromString(json['winner'] as String)
+          : null,
     );
+  }
+}
+
+enum ClassicGameStatus {
+  waiting,
+  starting,
+  inProgress,
+  finished;
+
+  static ClassicGameStatus fromString(String status) {
+    switch (status) {
+      case 'waiting':
+        return ClassicGameStatus.waiting;
+      case 'starting':
+        return ClassicGameStatus.starting;
+      case 'in_progress':
+        return ClassicGameStatus.inProgress;
+      case 'finished':
+        return ClassicGameStatus.finished;
+      default:
+        throw ArgumentError('Unknown game status: $status');
+    }
   }
 }
 

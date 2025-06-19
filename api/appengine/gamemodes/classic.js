@@ -55,7 +55,6 @@ module.exports.startClassicGame = async (gameId) => {
     setTimeout(async () => {
         const newGameSnapshot = await gameRef.get();
         if (!newGameSnapshot.exists) {
-            console.error(`Game ${gameId} does not exist.`);
             return;
         }
 
@@ -82,7 +81,6 @@ module.exports.startClassicGame = async (gameId) => {
     setTimeout(async () => {
         const newGameSnapshot = await gameRef.get();
         if (!newGameSnapshot.exists) {
-            console.error(`Game ${gameId} does not exist.`);
             return;
         }
 
@@ -96,7 +94,7 @@ module.exports.startClassicGame = async (gameId) => {
 
         await gameRef.update({
             status: "finished",
-            winner: "hiders",
+            winner: "hider",
         });
 
         const tokens = players.map((player) => player.fcmToken);

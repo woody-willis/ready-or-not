@@ -12,6 +12,7 @@ import 'package:ready_or_not/models/lobby.dart';
 import 'package:ready_or_not/ui/lobby/pages/bloc/lobby_bloc.dart';
 import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/bloc/classic_bloc.dart';
 import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/widgets/caught_widget.dart';
+import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/widgets/gameover_page.dart';
 import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/widgets/role_widget.dart';
 import 'package:ready_or_not/utils/map_circle_draw.dart';
 import 'package:vibration/vibration.dart';
@@ -36,6 +37,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
 
   late final StreamSubscription lobbySubscription;
   late final StreamSubscription playersSubscription;
+  late final StreamSubscription gameSubscription;
 
   late AnimationController _roleWidgetAnimationController;
   late Animation<double> _scaleAnimation;
@@ -78,6 +80,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
 
     lobbySubscription = lobbyBloc.lobbyRepository.currentLobbyStream.listen(lobbyUpdateListener);
     playersSubscription = lobbyBloc.lobbyRepository.playersStream.listen(lobbyPlayersUpdateListener);
+    gameSubscription = classicBloc.stream.listen(gameUpdateListener);
 
     _roleWidgetAnimationController = AnimationController(
       vsync: this,
@@ -192,6 +195,29 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
     setState(() {});
   }
 
+  Future<void> gameUpdateListener(ClassicState state) async {
+    if (!mounted) {
+      gameSubscription.cancel();
+      return;
+    }
+
+    final ClassicGame game = state.game;
+
+    if (game.status == ClassicGameStatus.finished) {
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => GameoverPage(
+            game: game,
+            players: classicBloc.classicRepository.currentPlayers,
+            classicBloc: classicBloc,
+          ),
+        ),
+      );
+
+      return;
+    }
+  }
+
   Future<void> _startRoleAnimationSequence() async {
     if (shownRole) return;
     shownRole = true;
@@ -242,7 +268,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
       if (status == AnimationStatus.completed) {
         _pulseAnimationController?.reverse();
       } else if (status == AnimationStatus.dismissed) {
-        Future.delayed(const Duration(milliseconds: 2500), () {
+        Future.delayed(const Duration(milliseconds: 1500), () {
           if (mounted) {
             _pulseAnimationController?.reset();
             _pulseAnimationController?.forward();

@@ -18,7 +18,7 @@ class ClassicBloc extends Bloc<ClassicEvent, ClassicState> {
 
   void _mapRefreshGameToState(
       RefreshGame event, Emitter<ClassicState> emit) async {
-    print(classicRepository.currentGame);
+        
     emit(
       state.copyWith(
         game: classicRepository.currentGame,
