@@ -5,7 +5,7 @@ const {
 
 const {initializeApp} = require("firebase-admin/app");
 
-const {startClassicGame} = require("./gamemodes/classic");
+const {startClassicGame, gameStateChanged} = require("./gamemodes/classic");
 
 initializeApp();
 
@@ -23,6 +23,25 @@ exports.startGame = onDocumentUpdatedWithAuthContext(
         case "classic":
           // Handle classic game mode
           startClassicGame(gameId);
+          break;
+        default:
+          logger.error(`Unknown game mode: ${gameMode}`);
+      }
+    },
+);
+
+exports.gameStateChanged = onDocumentUpdatedWithAuthContext(
+    "/games/{gameId}",
+    async (event) => {
+      if (event.data.after.get("status") !== "in_progress") return;
+
+      const gameId = event.params.gameId;
+      const gameMode = event.data.after.get("gameMode");
+
+      switch (gameMode) {
+        case "classic":
+          // Handle classic game mode
+          gameStateChanged(gameId);
           break;
         default:
           logger.error(`Unknown game mode: ${gameMode}`);

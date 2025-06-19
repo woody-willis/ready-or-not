@@ -1,5 +1,7 @@
 const {logger} = require("firebase-functions");
 const {getFirestore} = require("firebase-admin/firestore");
+const fetch = require('node-fetch');
+const {sendNotification} = require("../notifications");
 
 module.exports.startClassicGame = async (gameId) => {
   const db = getFirestore();
@@ -27,8 +29,10 @@ module.exports.startClassicGame = async (gameId) => {
       id: doc.id,
       uid: playerData.uid,
       name: playerData.name,
+      fcmToken: playerData.fcmToken,
     });
   });
+
   if (players.length < 2) {
     logger.error(`Not enough players for game ${gameId}.`);
     return;
@@ -71,49 +75,49 @@ module.exports.startClassicGame = async (gameId) => {
     hideEndTime: hideEndTime,
     gameEndTime: gameEndTime,
   });
+  
+  // await fetch(`https://ready-or-not-1717c.ew.r.appspot.com/start-game/${gameId}`);
+  await fetch(`http://127.0.0.1:8000/start-game/${gameId}`);
+};
 
-  setTimeout(async () => {
-    const newGameSnapshot = await gameRef.get();
-    if (!newGameSnapshot.exists) {
-      logger.error(`Game ${gameId} does not exist.`);
-      return;
-    }
+module.exports.gameStateChanged = async (gameId) => {
+  const db = getFirestore();
 
-    const newGameData = newGameSnapshot.data();
+  const gameRef = db.collection("games").doc(gameId);
+  const gameSnapshot = await gameRef.get();
+  if (!gameSnapshot.exists) {
+    logger.error(`Game ${gameId} does not exist.`);
+    return;
+  }
 
-    if (newGameData.status !== "in_progress") {
-      return;
-    }
-    
-    logger.log(`Game ${gameId} is releasing seekers.`);
+  const gameData = gameSnapshot.data();
 
-    for (const player of seekers) {
-      await playersRef.doc(player.id).update({
-        status: "active",
-        caughtHiders: [],
-      });
-    }
-  }, gameData.settings.hide_duration * 60 * 1000);
+  if (gameData.status !== "in_progress") {
+    logger.error(`Game ${gameId} is not in progress.`);
+    return;
+  }
 
-  setTimeout(async () => {
-    const newGameSnapshot = await gameRef.get();
-    if (!newGameSnapshot.exists) {
-      logger.error(`Game ${gameId} does not exist.`);
-      return;
-    }
-    
-    const newGameData = newGameSnapshot.data();
-
-    if (newGameData.status !== "in_progress") {
-      return;
-    }
-
-    logger.log(`Game ${gameId} is finished.`);
+  if (gameData.caughtHiders.length === gameData.hiders.length) {
+    logger.log(`All hiders caught in game ${gameId}.`);
 
     await gameRef.update({
       status: "finished",
-      winner: "hiders",
+      winner: "seekers",
     });
-  }, (gameData.settings.hide_duration + gameData.settings.game_duration) *
-        60 * 1000);
+
+    const playersRef = gameRef.collection("players");
+    const playersSnapshot = await playersRef.get();
+    if (playersSnapshot.empty) {
+      logger.error(`No players found for game ${gameId}.`);
+      return;
+    }
+
+    const tokens = [];
+    playersSnapshot.forEach((doc) => {
+      const playerData = doc.data();
+      tokens.push(playerData.fcmToken);
+    });
+
+    await sendNotification("Game Finished", "All hiders have been caught. Seekers win!", tokens);
+  }
 };
