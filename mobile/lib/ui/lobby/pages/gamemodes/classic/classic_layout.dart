@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:ready_or_not/models/classic_game.dart';
@@ -141,10 +142,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
     for (LobbyPlayer player in players) {
       if (!mounted) return;
       if (player.location == null) continue;
-      if (!seekersReleased) continue;
 
-      ClassicPlayer gamePlayer = classicBloc.classicRepository.getPlayerByUid(player.uid);
-      
       if (classicBloc.classicRepository.isMe(player.uid)) {
         await circleAnnotationManager?.create(
           CircleAnnotationOptions(
@@ -156,7 +154,15 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
             circleColor: Theme.of(context).colorScheme.secondary.value,
           ),
         );
-      } else if (classicBloc.classicRepository.isSeeker() && gamePlayer.role == ClassicPlayerRole.seeker) {
+
+        continue;
+      }
+
+      if (!seekersReleased) continue;
+
+      ClassicPlayer gamePlayer = classicBloc.classicRepository.getPlayerByUid(player.uid);
+      
+      if (classicBloc.classicRepository.isSeeker() && gamePlayer.role == ClassicPlayerRole.seeker) {
         await circleAnnotationManager?.create(
           CircleAnnotationOptions(
             geometry: Point(coordinates: Position(
@@ -204,6 +210,10 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
     final ClassicGame game = state.game;
 
     if (game.status == ClassicGameStatus.finished) {
+      if (await Vibration.hasVibrator()) {
+        await Vibration.vibrate(duration: 500);
+      }
+      
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => GameoverPage(
@@ -482,6 +492,32 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
               color: Theme.of(context).colorScheme.primary,
               size: 48,
               fill: 1,
+            ),
+          ),
+        ) : const SizedBox(),
+
+        !shownRole ? Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Theme.of(context).colorScheme.surface,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                LoadingAnimationWidget.threeRotatingDots(
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 50,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Waiting for players...',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         ) : const SizedBox(),
