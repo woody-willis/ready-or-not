@@ -1,6 +1,6 @@
 const {logger} = require("firebase-functions");
 const {getFirestore} = require("firebase-admin/firestore");
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 const {sendNotification} = require("../notifications");
 
 module.exports.startClassicGame = async (gameId) => {
@@ -75,9 +75,8 @@ module.exports.startClassicGame = async (gameId) => {
     hideEndTime: hideEndTime,
     gameEndTime: gameEndTime,
   });
-  
-  // await fetch(`https://ready-or-not-1717c.ew.r.appspot.com/start-game/${gameId}`);
-  await fetch(`http://127.0.0.1:8000/start-game/${gameId}`);
+
+  await fetch(`https://ready-or-not-1717c.ew.r.appspot.com/start-game/${gameId}`);
 };
 
 module.exports.gameStateChanged = async (gameId) => {
@@ -118,6 +117,9 @@ module.exports.gameStateChanged = async (gameId) => {
       tokens.push(playerData.fcmToken);
     });
 
-    await sendNotification("Game Finished", "All hiders have been caught. Seekers win!", tokens);
+    await sendNotification(
+        "Game Finished", "All hiders have been caught. Seekers win!",
+        tokens,
+    );
   }
 };
