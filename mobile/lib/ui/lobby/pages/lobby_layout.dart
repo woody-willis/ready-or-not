@@ -740,13 +740,9 @@ class LobbyJoinCodeExpandedScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8, bottom: 32),
                 child: QrImageView(
-                  data: 'https://readynot.com/join?code=$lobbyCode',
-                  version: 4,
+                  data: 'https://woodywillis.co.uk/redirect.html?readyornot://join-lobby?code=$lobbyCode',
+                  version: 6,
                   size: MediaQuery.of(context).size.width * 0.75,
-                  // embeddedImage: const AssetImage('assets/logo.png'),
-                  // embeddedImageStyle: QrEmbeddedImageStyle(
-                  //   size: const Size(80, 80),
-                  // ),
                   errorCorrectionLevel: QrErrorCorrectLevel.Q,
                 ),
               ),

@@ -30,13 +30,13 @@ class LobbyState extends Equatable {
     LobbyStatus? status,
     Lobby? lobby,
     List<LobbyPlayer>? players,
-    String? error,
+    String? Function()? error,
   }) {
     return LobbyState(
       status: status ?? this.status,
       lobby: lobby ?? this.lobby,
       players: players ?? this.players,
-      error: error ?? this.error,
+      error: error != null ? error() : this.error,
     );
   }
 }

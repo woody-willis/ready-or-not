@@ -213,7 +213,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
       if (await Vibration.hasVibrator()) {
         await Vibration.vibrate(duration: 500);
       }
-      
+
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => GameoverPage(
@@ -511,7 +511,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Waiting for players...',
+                  'We are preparing your game...',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,

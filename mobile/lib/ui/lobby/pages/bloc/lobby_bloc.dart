@@ -33,6 +33,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
     emit(
       state.copyWith(
         status: LobbyStatus.joining,
+        error: () => null,
       ),
     );
   }
@@ -42,6 +43,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
     emit(
       state.copyWith(
         status: LobbyStatus.creating,
+        error: () => null,
       ),
     );
   }
@@ -61,7 +63,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
         status: LobbyStatus.joining,
         lobby: Lobby.empty,
         players: [],
-        error: null,
+        error: () => null,
       ),
     );
   }
@@ -87,7 +89,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
         status: LobbyStatus.waiting,
         lobby: lobbyRepository.currentLobby,
         players: lobbyRepository.currentPlayers,
-        error: null,
+        error: () => null,
       ),
     );
   }
@@ -97,6 +99,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
     emit(
       state.copyWith(
         status: LobbyStatus.loading,
+        error: () => null,
       ),
     );
 
@@ -115,14 +118,14 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
           status: LobbyStatus.waiting,
           lobby: lobbyRepository.currentLobby,
           players: lobbyRepository.currentPlayers,
-          error: null,
+          error: () => null,
         ),
       );
     } else {
       emit(
         state.copyWith(
           status: LobbyStatus.joining,
-          error: 'Invalid game code',
+          error: () => 'Invalid game code',
         ),
       );
     }
@@ -134,7 +137,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
       state.copyWith(
         lobby: lobbyRepository.currentLobby,
         players: lobbyRepository.currentPlayers,
-        error: null,
+        error: () => null,
       ),
     );
   }
@@ -196,7 +199,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
         status: LobbyStatus.playing,
         lobby: lobbyRepository.currentLobby,
         players: lobbyRepository.currentPlayers,
-        error: null,
+        error: () => null,
       ),
     );
   }

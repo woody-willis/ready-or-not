@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:ready_or_not/ui/lobby/pages/bloc/lobby_bloc.dart';
+import 'package:ready_or_not/ui/lobby/pages/scan_qr_page.dart';
 
 class JoinLobbyLayout extends StatelessWidget {
   final TextEditingController lobbyCodeController = TextEditingController();
@@ -122,6 +123,19 @@ class JoinLobbyLayout extends StatelessWidget {
               ),
             ),
           ),
+          if (context.read<LobbyBloc>().state.error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text(
+                context.read<LobbyBloc>().state.error!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -149,19 +163,58 @@ class JoinLobbyLayout extends StatelessWidget {
               ),
             ),
           ),
-          if (context.read<LobbyBloc>().state.error != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Text(
-                context.read<LobbyBloc>().state.error!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
+          const SizedBox(height: 16),
+          Text(
+            'OR',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: () async {
+                  final String? result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ScanQrPage(),
+                    ),
+                  );
+
+                  if (!context.mounted || result == null) return;
+
+                  context.read<LobbyBloc>().add(JoinLobby(gameCode: result));
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: Icon(
+                  Symbols.qr_code_scanner_rounded,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  size: 24,
+                  fill: 1,
+                ),
+                label: Text(
+                  'Scan QR Code',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
+          ),
           const SizedBox(height: 64),
           const Spacer(),
         ],

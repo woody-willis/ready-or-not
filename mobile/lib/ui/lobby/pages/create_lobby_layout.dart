@@ -128,7 +128,7 @@ class _CreateLobbyLayoutState extends State<CreateLobbyLayout> {
           Container(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Text(
-              'Select a game mode to create a lobby',
+              'Select a game mode to create a game',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
