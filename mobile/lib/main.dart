@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -31,7 +28,7 @@ void main() async {
 
   await Firebase.initializeApp();
 
-  FirebaseFirestore.instance.useFirestoreEmulator('10.0.2.2', 8080);
+  // FirebaseFirestore.instance.useFirestoreEmulator('10.0.2.2', 8080);
 
   final remoteConfig = FirebaseRemoteConfig.instance;
   await remoteConfig.setConfigSettings(RemoteConfigSettings(
