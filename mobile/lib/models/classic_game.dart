@@ -57,6 +57,8 @@ class ClassicPlayer extends Equatable {
   final Timestamp? lastHeartbeat;
   final bool ready;
   final ClassicPlayerLocation? location;
+  final ClassicPlayerRole? role;
+  final String? status;
 
   const ClassicPlayer({
     required this.id,
@@ -65,10 +67,12 @@ class ClassicPlayer extends Equatable {
     required this.lastHeartbeat,
     required this.ready,
     this.location,
+    this.role,
+    this.status,
   });
 
   @override
-  List<Object?> get props => [id, uid, name, lastHeartbeat, ready, location];
+  List<Object?> get props => [id, uid, name, lastHeartbeat, ready, location, role, status];
 
   static const empty = ClassicPlayer(
     id: '',
@@ -77,6 +81,8 @@ class ClassicPlayer extends Equatable {
     lastHeartbeat: null,
     ready: false,
     location: null,
+    role: null,
+    status: null,
   );
 
   factory ClassicPlayer.fromJson(String id, Map<String, dynamic> json) {
@@ -89,6 +95,10 @@ class ClassicPlayer extends Equatable {
       location: json['location'] != null
           ? ClassicPlayerLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
+      role: json['role'] != null
+          ? ClassicPlayerRole.fromString(json['role'] as String)
+          : null,
+      status: json['status'] as String?,
     );
   }
 }
@@ -127,5 +137,22 @@ class ClassicPlayerLocation extends Equatable {
       speed: (json['speed'] as num).toDouble(),
       heading: (json['heading'] as num).toDouble(),
     );
+  }
+}
+
+enum ClassicPlayerRole {
+  seeker,
+  hider;
+
+  static ClassicPlayerRole? fromString(String? role) {
+    if (role == null) return null;
+    switch (role) {
+      case 'seeker':
+        return ClassicPlayerRole.seeker;
+      case 'hider':
+        return ClassicPlayerRole.hider;
+      default:
+        return null; // Handle unexpected role values
+    }
   }
 }

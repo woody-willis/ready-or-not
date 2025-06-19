@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:ready_or_not/models/classic_game.dart';
 import 'package:ready_or_not/models/lobby.dart';
 import 'package:ready_or_not/ui/lobby/pages/bloc/lobby_bloc.dart';
 import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/bloc/classic_bloc.dart';
@@ -18,7 +22,7 @@ class ClassicLayout extends StatefulWidget {
   State<ClassicLayout> createState() => _ClassicLayoutState();
 }
 
-class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProviderStateMixin {
+class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateMixin {
   late final MapboxMap mapboxMapController;
   late final MapCircleDrawer mapCircleDrawer;
   CircleAnnotationManager? circleAnnotationManager;
@@ -35,7 +39,10 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
   late AnimationController _roleWidgetAnimationController;
   late Animation<double> _scaleAnimation;
 
+  AnimationController? _pulseAnimationController;
+
   bool shownRole = false;
+  bool showNearbyHidersIndicator = false;
 
   @override
   void initState() {
@@ -106,17 +113,55 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
     for (LobbyPlayer player in players) {
       if (!mounted) return;
       if (player.location == null) continue;
+      if (!seekersReleased) continue;
+
+      ClassicPlayer gamePlayer = classicBloc.classicRepository.getPlayerByUid(player.uid);
       
-      await circleAnnotationManager?.create(
-        CircleAnnotationOptions(
-          geometry: Point(coordinates: Position(
-            player.location!.lng,
-            player.location!.lat,
-          )),
-          circleRadius: 5,
-          circleColor: Theme.of(context).colorScheme.tertiary.value,
-        ),
-      );
+      if (classicBloc.classicRepository.isMe(player.uid)) {
+        await circleAnnotationManager?.create(
+          CircleAnnotationOptions(
+            geometry: Point(coordinates: Position(
+              player.location!.lng,
+              player.location!.lat,
+            )),
+            circleRadius: 5,
+            circleColor: Theme.of(context).colorScheme.secondary.value,
+          ),
+        );
+      } else if (classicBloc.classicRepository.isSeeker() && gamePlayer.role == ClassicPlayerRole.seeker) {
+        await circleAnnotationManager?.create(
+          CircleAnnotationOptions(
+            geometry: Point(coordinates: Position(
+              player.location!.lng,
+              player.location!.lat,
+            )),
+            circleRadius: 5,
+            circleColor: Theme.of(context).colorScheme.primary.value,
+          ),
+        );
+      } else if (classicBloc.classicRepository.isHider() && gamePlayer.role == ClassicPlayerRole.hider && gamePlayer.status != 'caught') {
+        await circleAnnotationManager?.create(
+          CircleAnnotationOptions(
+            geometry: Point(coordinates: Position(
+              player.location!.lng,
+              player.location!.lat,
+            )),
+            circleRadius: 5,
+            circleColor: Theme.of(context).colorScheme.tertiary.value,
+          ),
+        );
+      }
+    }
+
+    if (classicBloc.classicRepository.isSeeker()) {
+      bool nearbyHidersFound = await classicBloc.classicRepository.areHidersNearby();
+      if (nearbyHidersFound && seekersReleased) {
+        _startPulseAnimation();
+        showNearbyHidersIndicator = true;
+      } else {
+        _stopPulseAnimation();
+        showNearbyHidersIndicator = false;
+      }
     }
 
     setState(() {});
@@ -135,6 +180,44 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
     }
   }
 
+  void _startPulseAnimation() {
+    _pulseAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    final Animation<double> pulseAnimation = Tween<double>(begin: 0.0, end: 20.0).animate(
+      CurvedAnimation(
+        parent: _pulseAnimationController!,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    pulseAnimation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _pulseAnimationController!.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        Future.delayed(const Duration(milliseconds: 2500), () {
+          if (mounted) {
+            _pulseAnimationController!.reset();
+            _pulseAnimationController!.forward();
+          }
+        });
+      }
+    });
+
+    _pulseAnimationController!.forward();
+  }
+
+  void _stopPulseAnimation() {
+    if (_pulseAnimationController == null) return;
+
+    if (_pulseAnimationController!.isAnimating) {
+      _pulseAnimationController!.stop();
+    }
+    _pulseAnimationController!.dispose();
+  }
+
   @override
   void dispose() {
     try {
@@ -142,6 +225,8 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
     } catch (e) {
       // Do nothing
     }
+
+    _stopPulseAnimation();
 
     _roleWidgetAnimationController.dispose();
     updateTimer.cancel();
@@ -199,6 +284,26 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
             await mapCircleDrawer.drawCircle();
           },
         ),
+
+        IgnorePointer(
+          ignoring: true,
+          child: _pulseAnimationController != null ? AnimatedBuilder(
+            animation: _pulseAnimationController!,
+            builder: (context, child) {
+              return Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(_pulseAnimationController!.value * 0.25),
+                    width: 2 + _pulseAnimationController!.value * 12,
+                  ),
+                ),
+              );
+            },
+          ) : const SizedBox(),
+        ),
+
         Align(
           alignment: Alignment.topCenter,
           child: Container(
@@ -221,7 +326,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
             child: Column(
               children: [
                 Text(
-                  !seekersReleased ? 'Seekers released in' : 'Game ends in',
+                  !seekersReleased ? (classicBloc.classicRepository.isSeeker() ? 'You will be released in' : 'Seekers released in') : 'Game ends in',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onPrimary,
@@ -238,6 +343,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
             ),
           ),
         ),
+
         classicBloc.classicRepository.isSeeker() && seekersReleased ? Positioned(
           bottom: 24,
           left: 16,
@@ -264,6 +370,50 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
           ),
         ) : const SizedBox(),
 
+        showNearbyHidersIndicator ? Positioned(
+          top: 20,
+          right: 20,
+          child: GestureDetector(
+            onTap: () {
+              if (Platform.isAndroid) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Nearby Hiders'),
+                    content: Text('There are hiders nearby. Find and tag them!'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (Platform.isIOS) {
+                showCupertinoDialog(
+                  context: context,
+                  builder: (context) => CupertinoAlertDialog(
+                    title: Text('Nearby Hiders'),
+                    content: Text('There are hiders nearby. Find and tag them!'),
+                    actions: [
+                      CupertinoDialogAction(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+            child: Icon(
+              Symbols.mystery_rounded,
+              color: Theme.of(context).colorScheme.primary,
+              size: 48,
+              fill: 1,
+            ),
+          ),
+        ) : const SizedBox(),
+
         ScaleTransition(
           scale: _scaleAnimation,
           child: Align(
@@ -272,7 +422,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with SingleTickerProvider
               role: classicBloc.classicRepository.isSeeker() ? 'Seeker' : (classicBloc.classicRepository.isHider() ? 'Hider' : '...'),
             ),
           ),
-        )
+        ),
       ],
     );
   }

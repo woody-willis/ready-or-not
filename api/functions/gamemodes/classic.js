@@ -73,10 +73,18 @@ module.exports.startClassicGame = async (gameId) => {
   });
 
   setTimeout(async () => {
-    if (gameData.status !== "in_progress") {
+    const newGameSnapshot = await gameRef.get();
+    if (!newGameSnapshot.exists) {
+      logger.error(`Game ${gameId} does not exist.`);
       return;
     }
 
+    const newGameData = newGameSnapshot.data();
+
+    if (newGameData.status !== "in_progress") {
+      return;
+    }
+    
     logger.log(`Game ${gameId} is releasing seekers.`);
 
     for (const player of seekers) {
@@ -88,7 +96,15 @@ module.exports.startClassicGame = async (gameId) => {
   }, gameData.settings.hide_duration * 60 * 1000);
 
   setTimeout(async () => {
-    if (gameData.status !== "in_progress") {
+    const newGameSnapshot = await gameRef.get();
+    if (!newGameSnapshot.exists) {
+      logger.error(`Game ${gameId} does not exist.`);
+      return;
+    }
+    
+    const newGameData = newGameSnapshot.data();
+
+    if (newGameData.status !== "in_progress") {
       return;
     }
 

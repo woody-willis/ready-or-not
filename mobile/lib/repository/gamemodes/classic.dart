@@ -132,7 +132,7 @@ class ClassicGameRepository {
       'status': 'caught',
     });
 
-    ClassicPlayer me = currentPlayers.firstWhere((player) => player.uid == _authenticationRepository.currentUser.id);
+    final ClassicPlayer me = currentPlayers.firstWhere((player) => player.uid == _authenticationRepository.currentUser.id);
 
     // Add caught hider to the seeker's list
     await gameRef.collection('players').doc(me.id).update({
@@ -143,5 +143,36 @@ class ClassicGameRepository {
     await gameRef.update({
       'caughtHiders': FieldValue.arrayUnion([nearestHider.uid]),
     });
+  }
+
+  Future<bool> areHidersNearby() async {
+    if (currentGame == ClassicGame.empty || !isSeeker()) return false;
+
+    // Get current location from firebase
+    final ClassicPlayer me = currentPlayers.firstWhere((player) => player.uid == _authenticationRepository.currentUser.id);
+    if (me.location == null) return false;
+
+    final seekerProximityDistance = (currentGame.settings!['seeker_proximity_distance'] as num?) ?? 100;
+
+    // Check if any hiders are nearby
+    for (var hider in currentPlayers.where((player) => player.uid != me.uid && currentGame.hiderUids!.contains(player.uid))) {
+      if (hider.location == null) continue;
+      if (hider.status == 'caught') continue;
+
+      double distance = Geolocator.distanceBetween(
+        me.location!.lat.toDouble(), me.location!.lng.toDouble(),
+        hider.location!.lat.toDouble(), hider.location!.lng.toDouble(),
+      );
+
+      if (distance <= seekerProximityDistance) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  ClassicPlayer getPlayerByUid(String uid) {
+    return currentPlayers.firstWhere((player) => player.uid == uid, orElse: () => ClassicPlayer.empty);
   }
 }
