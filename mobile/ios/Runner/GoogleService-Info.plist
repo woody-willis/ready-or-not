@@ -3,17 +3,19 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>844346764881-rcf5tju1vd10ckj2o0qd2gnpf58vvcu0.apps.googleusercontent.com</string>
+	<string>844346764881-nok228vlfm53qhhm5g3iiv44kh14rudn.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.844346764881-rcf5tju1vd10ckj2o0qd2gnpf58vvcu0</string>
+	<string>com.googleusercontent.apps.844346764881-nok228vlfm53qhhm5g3iiv44kh14rudn</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>844346764881-fjneu6vkbb4gcm2hei39jpgc2bba37a6.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyD9RweY2wKjDh8IVcJ24L-SMv1IAr4BaUY</string>
+	<string>AIzaSyCRso8zft9ueVhLwG4pXcRwBJvypOD6fSk</string>
 	<key>GCM_SENDER_ID</key>
 	<string>844346764881</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>uk.co.woodywillis.ReadyOrNot.RunnerTests</string>
+	<string>uk.co.woodywillis.ReadyOrNot</string>
 	<key>PROJECT_ID</key>
 	<string>ready-or-not-1717c</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +31,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:844346764881:ios:0cc9c7697974a2f32a1270</string>
+	<string>1:844346764881:ios:1a90fb7d3092d4072a1270</string>
+	<key>DATABASE_URL</key>
+	<string>https://ready-or-not-1717c-default-rtdb.europe-west1.firebasedatabase.app</string>
 </dict>
 </plist>

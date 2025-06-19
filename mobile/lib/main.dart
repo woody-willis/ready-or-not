@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +27,8 @@ void main() async {
   await dotenv.load(fileName: ".env");
   MapboxOptions.setAccessToken(dotenv.env['MAPBOX_ACCESS_TOKEN']!);
 
+  Constants.prefs = await SharedPreferences.getInstance();
+
   await Firebase.initializeApp();
 
   FirebaseFirestore.instance.useFirestoreEmulator('10.0.2.2', 8080);
@@ -41,7 +46,15 @@ void main() async {
     // TODO
   });
 
-  Constants.prefs = await SharedPreferences.getInstance();
+  FirebaseMessaging.instance.onTokenRefresh.listen((String? token) {
+    if (token != null) {
+      Constants.prefs?.setString('fcm_token', token);
+    } else {
+      Constants.prefs?.remove('fcm_token');
+    }
+  }).onError((error) {
+    print('Failed to get FCM token: $error');
+  });
 
   Bloc.observer = AppBlocObserver();
 

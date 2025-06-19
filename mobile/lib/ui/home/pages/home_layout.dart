@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -35,7 +38,30 @@ class _HomeLayoutState extends State<HomeLayout> {
 
     lobbyBloc = context.read<LobbyBloc>();
 
-    requestLocationPermission();
+    requestPermissions();
+  }
+
+  Future<void> requestPermissions() async {
+    final locationPerm = await Permission.location.status;
+    final notificationPerm = await Permission.notification.status;
+
+    if (locationPerm.isDenied || notificationPerm.isDenied) {
+      final grantedLocation = await requestLocationPermission();
+      final grantedNotification = await requestNotificationPermission();
+
+      if (grantedLocation && grantedNotification) {
+        print('All permissions granted.');
+      } else {
+        print('Some permissions were not granted.');
+      }
+    } else {
+      print('All permissions already granted.');
+    }
+
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken != null) {
+      Constants.prefs?.setString('fcm_token', fcmToken);
+    }
   }
 
   Future<bool> requestLocationPermission() async {
@@ -85,6 +111,68 @@ class _HomeLayoutState extends State<HomeLayout> {
       return false;
     }
     
+    return false;
+  }
+
+  Future<bool> requestNotificationPermission() async {
+    // For apple platforms, ensure the APNS token is available before making any FCM plugin API calls
+    if (Platform.isIOS) {
+      final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+      if (apnsToken != null) {
+        print('APNS Token: $apnsToken');
+      } else {
+        print('Failed to get APNS token.');
+      }
+    }
+
+    final notificationPerm = await Permission.notification.request();
+
+    if (notificationPerm.isGranted) {
+      return true;
+    } else if (notificationPerm.isDenied) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Notification Permission Required'),
+            content: const Text('This app requires notification permission to function properly.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+
+      return await requestNotificationPermission();
+    } else if (notificationPerm.isPermanentlyDenied) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Notification Permission Required'),
+            content: const Text('Please enable notification permission in the app settings.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  openAppSettings();
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          );
+        },
+      );
+
+      return false;
+    }
+
+    await FirebaseMessaging.instance.requestPermission(provisional: true);
+
     return false;
   }
 

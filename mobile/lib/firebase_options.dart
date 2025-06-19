@@ -54,16 +54,20 @@ class DefaultFirebaseOptions {
     appId: '1:844346764881:android:bda94d5fad5b0e162a1270',
     messagingSenderId: '844346764881',
     projectId: 'ready-or-not-1717c',
+    databaseURL: 'https://ready-or-not-1717c-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'ready-or-not-1717c.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD9RweY2wKjDh8IVcJ24L-SMv1IAr4BaUY',
-    appId: '1:844346764881:ios:0cc9c7697974a2f32a1270',
+    apiKey: 'AIzaSyCRso8zft9ueVhLwG4pXcRwBJvypOD6fSk',
+    appId: '1:844346764881:ios:1a90fb7d3092d4072a1270',
     messagingSenderId: '844346764881',
     projectId: 'ready-or-not-1717c',
+    databaseURL: 'https://ready-or-not-1717c-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'ready-or-not-1717c.firebasestorage.app',
-    iosClientId: '844346764881-rcf5tju1vd10ckj2o0qd2gnpf58vvcu0.apps.googleusercontent.com',
-    iosBundleId: 'uk.co.woodywillis.ReadyOrNot.RunnerTests',
+    androidClientId: '844346764881-fjneu6vkbb4gcm2hei39jpgc2bba37a6.apps.googleusercontent.com',
+    iosClientId: '844346764881-nok228vlfm53qhhm5g3iiv44kh14rudn.apps.googleusercontent.com',
+    iosBundleId: 'uk.co.woodywillis.ReadyOrNot',
   );
+
 }

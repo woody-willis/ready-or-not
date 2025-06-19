@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "844346764881",
+    "firebase_url": "https://ready-or-not-1717c-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "ready-or-not-1717c",
     "storage_bucket": "ready-or-not-1717c.firebasestorage.app"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "844346764881-fjneu6vkbb4gcm2hei39jpgc2bba37a6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uk.co.woodywillis.ReadyOrNot",
+            "certificate_hash": "3b14fbdb4e050df02a8063bbaad277dfa907ed5d"
+          }
+        },
         {
           "client_id": "844346764881-fahqnge7imaq5j40k22unrk40biju7vv.apps.googleusercontent.com",
           "client_type": 3
@@ -29,6 +38,13 @@
             {
               "client_id": "844346764881-fahqnge7imaq5j40k22unrk40biju7vv.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "844346764881-rcf5tju1vd10ckj2o0qd2gnpf58vvcu0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "uk.co.woodywillis.ReadyOrNot.RunnerTests"
+              }
             }
           ]
         }

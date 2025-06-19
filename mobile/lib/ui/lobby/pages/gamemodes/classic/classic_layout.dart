@@ -11,6 +11,7 @@ import 'package:ready_or_not/models/classic_game.dart';
 import 'package:ready_or_not/models/lobby.dart';
 import 'package:ready_or_not/ui/lobby/pages/bloc/lobby_bloc.dart';
 import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/bloc/classic_bloc.dart';
+import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/widgets/caught_widget.dart';
 import 'package:ready_or_not/ui/lobby/pages/gamemodes/classic/widgets/role_widget.dart';
 import 'package:ready_or_not/utils/map_circle_draw.dart';
 import 'package:vibration/vibration.dart';
@@ -39,9 +40,13 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
   late AnimationController _roleWidgetAnimationController;
   late Animation<double> _scaleAnimation;
 
+  late AnimationController _scaleCaughtAnimationController;
+  late Animation<double> _scaleCaughtAnimation;
+
   AnimationController? _pulseAnimationController;
 
   bool shownRole = false;
+  bool shownCaught = false;
   bool showNearbyHidersIndicator = false;
 
   @override
@@ -78,9 +83,17 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
+    _scaleCaughtAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
 
     _scaleAnimation = CurvedAnimation(
       parent: _roleWidgetAnimationController,
+      curve: Curves.easeInOut,
+    );
+    _scaleCaughtAnimation = CurvedAnimation(
+      parent: _scaleCaughtAnimationController,
       curve: Curves.easeInOut,
     );
 
@@ -100,6 +113,18 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
 
     if (classicBloc.classicRepository.isSeeker() || classicBloc.classicRepository.isHider()) {
       _startRoleAnimationSequence();
+    }
+
+    if (classicBloc.classicRepository.isHider()) {
+      bool caught = classicBloc.classicRepository.isCaught();
+      
+      if (caught && !shownCaught) {
+        if (await Vibration.hasVibrator()) {
+          await Vibration.vibrate(duration: 500);
+        }
+
+        _startCaughtAnimationSequence();
+      }
     }
   }
 
@@ -180,7 +205,27 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
     }
   }
 
+  Future<void> _startCaughtAnimationSequence() async {
+    if (shownCaught) return;
+    shownCaught = true;
+
+    try {
+      await _scaleCaughtAnimationController.forward();
+      await Future.delayed(Duration(seconds: 5));
+      await _scaleCaughtAnimationController.reverse();
+    } catch (e) {
+      // Handle the error if needed
+    }
+  }
+
   void _startPulseAnimation() {
+    if (_pulseAnimationController != null && _pulseAnimationController!.isAnimating) {
+      return; // Animation already running
+    }
+    if (_pulseAnimationController != null) {
+      _stopPulseAnimation();
+    }
+
     _pulseAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -195,12 +240,12 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
 
     pulseAnimation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _pulseAnimationController!.reverse();
+        _pulseAnimationController?.reverse();
       } else if (status == AnimationStatus.dismissed) {
         Future.delayed(const Duration(milliseconds: 2500), () {
           if (mounted) {
-            _pulseAnimationController!.reset();
-            _pulseAnimationController!.forward();
+            _pulseAnimationController?.reset();
+            _pulseAnimationController?.forward();
           }
         });
       }
@@ -216,6 +261,7 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
       _pulseAnimationController!.stop();
     }
     _pulseAnimationController!.dispose();
+    _pulseAnimationController = null;
   }
 
   @override
@@ -421,6 +467,14 @@ class _ClassicLayoutState extends State<ClassicLayout> with TickerProviderStateM
             child: RoleWidget(
               role: classicBloc.classicRepository.isSeeker() ? 'Seeker' : (classicBloc.classicRepository.isHider() ? 'Hider' : '...'),
             ),
+          ),
+        ),
+
+        ScaleTransition(
+          scale: _scaleCaughtAnimation,
+          child: Align(
+            alignment: Alignment.center,
+            child: CaughtWidget(),
           ),
         ),
       ],

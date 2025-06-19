@@ -95,6 +95,7 @@ class LobbyRepository {
     await _firestore.collection('games').doc(docRef.id).collection('players').add({
       'uid': hostUid,
       'name': Constants.prefs!.getString('displayName') ?? _authenticationRepository.currentUser.name,
+      'fcmToken': Constants.prefs!.getString('fcm_token') ?? '',
       'lastHeartbeat': FieldValue.serverTimestamp(),
       'ready': true,
     });
@@ -165,6 +166,7 @@ class LobbyRepository {
     await _firestore.collection('games').doc(querySnapshot.docs[0].id).collection('players').add({
       'uid': _authenticationRepository.currentUser.id,
       'name': Constants.prefs!.getString('displayName') ?? _authenticationRepository.currentUser.name,
+      'fcmToken': Constants.prefs!.getString('fcm_token') ?? '',
       'lastHeartbeat': FieldValue.serverTimestamp(),
       'ready': false,
     });
