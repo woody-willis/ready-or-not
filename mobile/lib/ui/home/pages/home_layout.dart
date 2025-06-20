@@ -448,7 +448,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                   onPressed: () {
                     
                   },
-                  disabled: loginBloc.state.user.type == UserType.guest,
+                  disabled: loginBloc.state.user.type == UserType.guest || true,
                 ),
                 QuickActionButton(
                   icon: Symbols.settings_rounded,
@@ -456,6 +456,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                   onPressed: () {
                     
                   },
+                  disabled: true,
                 ),
               ],
             ),
@@ -468,7 +469,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                   onPressed: () {
                     
                   },
-                  disabled: loginBloc.state.user.type == UserType.guest,
+                  disabled: loginBloc.state.user.type == UserType.guest || true,
                 ),
                 QuickActionButton(
                   icon: Symbols.location_on_rounded,
@@ -476,7 +477,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                   onPressed: () {
                     
                   },
-                  disabled: loginBloc.state.user.type == UserType.guest,
+                  disabled: loginBloc.state.user.type == UserType.guest || true,
                 ),
               ],
             ),
