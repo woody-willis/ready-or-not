@@ -65,8 +65,7 @@ void main() async {
       options.sendDefaultPii = true;
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
-      options.replay.sessionSampleRate = 0.1;
-      options.replay.onErrorSampleRate = 1.0;
+      options.attachScreenshot = true;
     },
     appRunner: () => runApp(SentryWidget(child: const App())),
   );
