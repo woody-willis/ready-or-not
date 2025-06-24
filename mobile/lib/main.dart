@@ -14,6 +14,7 @@ import 'package:ready_or_not/ui/lobby/pages/bloc/lobby_bloc.dart';
 import 'package:ready_or_not/utils/app_bloc_observer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Constants {
   static SharedPreferences? prefs;
@@ -58,7 +59,17 @@ void main() async {
 
   final appLinks = AppLinks();
 
-  runApp(const App());
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://4c5765496d38580a83a918ff643486dc@o4509552265854976.ingest.de.sentry.io/4509552272670800';
+      options.sendDefaultPii = true;
+      options.tracesSampleRate = 1.0;
+      options.profilesSampleRate = 1.0;
+      options.replay.sessionSampleRate = 0.1;
+      options.replay.onErrorSampleRate = 1.0;
+    },
+    appRunner: () => runApp(SentryWidget(child: const App())),
+  );
 }
 
 class App extends StatelessWidget {

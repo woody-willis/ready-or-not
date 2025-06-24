@@ -25,15 +25,15 @@ class _LoginLayoutState extends State<LoginLayout> {
 
     loginBloc = context.read<LoginBloc>();
     loginBloc.add(CheckLoggedIn());
-    
-    _controller = VideoPlayerController.asset(
-        'assets/home/login_background.mp4')
-      ..initialize().then((_) {
-        _controller.play();
-        _controller.setLooping(true);
-        // Ensure the first frame is shown after the video is initialized
-        setState(() {});
-      });
+
+    _controller =
+        VideoPlayerController.asset('assets/home/login_background.mp4')
+          ..initialize().then((_) {
+            _controller.play();
+            _controller.setLooping(true);
+            // Ensure the first frame is shown after the video is initialized
+            setState(() {});
+          });
   }
 
   @override
@@ -41,7 +41,7 @@ class _LoginLayoutState extends State<LoginLayout> {
     _controller.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -71,65 +71,79 @@ class _LoginLayoutState extends State<LoginLayout> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 120),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const LoginHeader(),
-                const SizedBox(height: 40.0),
-                GuestSignInWidget(
-                  onTap: () async {
-                    loginBloc.add(LogInGuest());
-                  },
-                ),
-                GoogleSignInWidget(
-                  onTap: () async {
-                    loginBloc.add(LogInGoogle());
-                  },
-                ),
-                AppleSignInWidget(
-                  onTap: () async {
-                    loginBloc.add(LogInApple());
-                  },
-                ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 28, left: 16, right: 16),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Text.rich(
-                TextSpan(
+          Column(
+            children: [
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextSpan(
-                      text: 'By signing in, you agree to our ',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.w400,
-                          ),
+                    const LoginHeader(),
+                    const SizedBox(height: 40.0),
+                    GuestSignInWidget(
+                      onTap: () async {
+                        loginBloc.add(LogInGuest());
+                      },
                     ),
-                    TextSpan(
-                      text: 'Terms of Service',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    GoogleSignInWidget(
+                      onTap: () async {
+                        loginBloc.add(LogInGoogle());
+                      },
                     ),
-                    TextSpan(
-                      text: '.',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.w400,
-                          ),
+                    AppleSignInWidget(
+                      onTap: () async {
+                        loginBloc.add(LogInApple());
+                      },
                     ),
                   ],
                 ),
               ),
-            ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 28, left: 16, right: 16),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'By signing in, you agree to our ',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontWeight: FontWeight.w400,
+                              ),
+                        ),
+                        TextSpan(
+                          text: 'Terms of Service',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        TextSpan(
+                          text: '.',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontWeight: FontWeight.w400,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:app_links/app_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -107,8 +108,8 @@ class _HomeLayoutState extends State<HomeLayout> {
   }
 
   Future<void> requestPermissions() async {
-    final locationPerm = await Permission.location.status;
-    final notificationPerm = await Permission.notification.status;
+    final locationPerm = await Permission.location.request();
+    final notificationPerm = await Permission.notification.request();
 
     if (locationPerm.isDenied || notificationPerm.isDenied) {
       final grantedLocation = await requestLocationPermission();
@@ -129,53 +130,102 @@ class _HomeLayoutState extends State<HomeLayout> {
     }
   }
 
-  Future<bool> requestLocationPermission() async {
-    final locationPerm = await Permission.location.request();
+  Future<bool> requestLocationPermission({bool firstRun = true}) async {
+    PermissionStatus locationPerm;
+    if (firstRun) {
+      locationPerm = await Permission.location.request();
+    } else {
+      locationPerm = await Permission.locationAlways.request();
+    }
 
     if (locationPerm.isGranted) {
       return true;
     } else if (locationPerm.isDenied) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Location Permission Required'),
-            content: const Text(
-                'This app requires location permission to function properly.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      if (Platform.isAndroid) {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Location Permission Required'),
+              content: const Text(
+                  'This app requires location permission to function properly.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else if (Platform.isIOS) {
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: const Text('Location Permission Required'),
+              content: const Text(
+                  'This app requires location permission to function properly.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
 
       return await requestLocationPermission();
     } else if (locationPerm.isPermanentlyDenied) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Location Permission Required'),
-            content: const Text(
-                'Please enable location permission in the app settings.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  openAppSettings();
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          );
-        },
-      );
+      if (Platform.isAndroid) {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Location Permission Required'),
+              content: const Text(
+                  'Please enable location permission in the app settings.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    openAppSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ],
+            );
+          },
+        );
+      } else if (Platform.isIOS) {
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: const Text('Location Permission Required'),
+              content: const Text(
+                  'Please enable location permission in the app settings.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    openAppSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
 
-      return false;
+    if (firstRun && Platform.isAndroid) {
+      return await requestLocationPermission(firstRun: false);
     }
 
     return false;
@@ -197,45 +247,87 @@ class _HomeLayoutState extends State<HomeLayout> {
     if (notificationPerm.isGranted) {
       return true;
     } else if (notificationPerm.isDenied) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Notification Permission Required'),
-            content: const Text(
-                'This app requires notification permission to function properly.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      if (Platform.isAndroid) {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Notification Permission Required'),
+              content: const Text(
+                  'This app requires notification permission to function properly.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else if (Platform.isIOS) {
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: const Text('Notification Permission Required'),
+              content: const Text(
+                  'This app requires notification permission to function properly.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
 
       return await requestNotificationPermission();
     } else if (notificationPerm.isPermanentlyDenied) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Notification Permission Required'),
-            content: const Text(
-                'Please enable notification permission in the app settings.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  openAppSettings();
-                },
-                child: const Text('Open Settings'),
-              ),
-            ],
-          );
-        },
-      );
+      if (Platform.isAndroid) {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Notification Permission Required'),
+              content: const Text(
+                  'Please enable notification permission in the app settings.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    openAppSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ],
+            );
+          },
+        );
+      } else if (Platform.isIOS) {
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: const Text('Notification Permission Required'),
+              content: const Text(
+                  'Please enable notification permission in the app settings.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    openAppSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ],
+            );
+          },
+        );
+      }
 
       return false;
     }
@@ -294,6 +386,44 @@ class _HomeLayoutState extends State<HomeLayout> {
               Expanded(
                 child: TextButton.icon(
                   onPressed: () {
+                    if (Constants.prefs!.getString('displayName') == null ||
+                        Constants.prefs!.getString('displayName')!.isEmpty) {
+                      if (Platform.isAndroid) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please set a display name first.'),
+                            duration: const Duration(seconds: 2),
+                            action: SnackBarAction(
+                              label: 'OK',
+                              onPressed: () {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+                              },
+                            ),
+                          ),
+                        );
+                      } else if (Platform.isIOS) {
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (context) {
+                            return CupertinoAlertDialog(
+                              title: const Text('Display Name Required'),
+                              content: const Text(
+                                  'Please set a display name first.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                      return;
+                    }
                     lobbyBloc.add(OpenJoinLobby());
 
                     Navigator.of(context).push(
@@ -357,20 +487,80 @@ class _HomeLayoutState extends State<HomeLayout> {
                   child: TextButton.icon(
                     onPressed: () {
                       if (disabled) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Please sign in to create a room.'),
-                            duration: const Duration(seconds: 2),
-                            action: SnackBarAction(
-                              label: 'OK',
-                              onPressed: () {
-                                ScaffoldMessenger.of(context)
-                                    .hideCurrentSnackBar();
-                              },
+                        if (Platform.isAndroid) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Please sign in to create a room.'),
+                              duration: const Duration(seconds: 2),
+                              action: SnackBarAction(
+                                label: 'OK',
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                },
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } else if (Platform.isIOS) {
+                          showCupertinoDialog(
+                            context: context,
+                            builder: (context) {
+                              return CupertinoAlertDialog(
+                                title: const Text('Sign In Required'),
+                                content: const Text(
+                                    'Please sign in to create a room.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
 
+                        return;
+                      }
+
+                      if (Constants.prefs!.getString('displayName') == null ||
+                          Constants.prefs!.getString('displayName')!.isEmpty) {
+                        if (Platform.isAndroid) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Please set a display name first.'),
+                              duration: const Duration(seconds: 2),
+                              action: SnackBarAction(
+                                label: 'OK',
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentSnackBar();
+                                },
+                              ),
+                            ),
+                          );
+                        } else if (Platform.isIOS) {
+                          showCupertinoDialog(
+                            context: context,
+                            builder: (context) {
+                              return CupertinoAlertDialog(
+                                title: const Text('Display Name Required'),
+                                content: const Text(
+                                    'Please set a display name first.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                         return;
                       }
 
