@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:ready_or_not/ui/home/pages/bloc/login_bloc.dart';
 import 'package:ready_or_not/ui/home/widgets/apple_sign_in_widget/apple_sign_in_widget.dart';
@@ -101,44 +102,50 @@ class _LoginLayoutState extends State<LoginLayout> {
                 ),
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 28, left: 16, right: 16),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'By signing in, you agree to our ',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontWeight: FontWeight.w400,
-                              ),
-                        ),
-                        TextSpan(
-                          text: 'Terms of Service',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        TextSpan(
-                          text: '.',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontWeight: FontWeight.w400,
-                              ),
-                        ),
-                      ],
+              GestureDetector(
+                onTap: () {
+                  Uri uri = Uri.parse('https://woodywillis.co.uk/terms');
+                  launchUrl(uri, mode: LaunchMode.externalApplication);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 28, left: 16, right: 16),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'By signing in, you agree to our ',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                          ),
+                          TextSpan(
+                            text: 'Terms of Service',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          TextSpan(
+                            text: '.',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
